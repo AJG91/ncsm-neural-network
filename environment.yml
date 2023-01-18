@@ -1,4 +1,4 @@
-name: machine-learning-env
+name: ncsm-neural-network-env
 
 channels:
   - conda-forge
