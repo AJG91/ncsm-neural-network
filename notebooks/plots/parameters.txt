@@ -1,6 +1,7 @@
 nucleon:  He4_lam0200_Ebind
 pred_param:  Ebind
 total_NN:  50
+max_train:  50
 hw_pred:  20
 patience:  15
 Nmax_pred:  50
