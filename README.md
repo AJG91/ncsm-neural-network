@@ -1,7 +1,7 @@
 # NCSM Neural Network
 
 This repository contains all the code and data necessary to train an feed-forward artificial neural network (ANN) to predict ground-state properties of He-4 using [no-core shell model (NCSM)][Bogner] data.
-This work is based on the following papers: [ANN][Negoita], [custom loss][Jiang].
+This work is based on the following papers: [build neural network][Negoita], [custom loss][Jiang].
 
 ## Getting Started
 
@@ -24,8 +24,6 @@ The code snippet below shows how it should be used:
 from libraries import NeuralNetwork
 
 # Setup
-```
-
 ```
 
 [Bogner]: https://www.sciencedirect.com/science/article/abs/pii/S0375947407008147?via%3Dihub
