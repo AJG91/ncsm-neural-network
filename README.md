@@ -13,15 +13,15 @@ This work is based on the following papers: [ANN][Negoita], [custom loss][Jiang]
 conda env create -f environment.yml
 ```
 * Enter the virtual environment with `conda activate ncsm-neural-network-env`
-* Install the `neural_network` package in the repo root directory using `pip install -e .`
-  (you only need the `-e` option if you intend to edit the source code in `neural_network/`).
+* Install the `libraries` package in the repo root directory using `pip install -e .`
+  (you only need the `-e` option if you intend to edit the source code in `libraries/`).
 
 ## Example
 
 The main class for the neural network is `NeuralNetwork`, which implements the neural network.
 The code snippet below shows how it should be used:
 ```python
-from neural_network import NeuralNetwork
+from libraries import NeuralNetwork
 
 # Setup
 ```
