@@ -1,0 +1,9 @@
+nucleon:  He4_lam0200_Ebind
+pred_param:  Ebind
+total_NN:  50
+hw_pred:  20
+patience:  15
+Nmax_pred:  50
+L2 reg:  False
+Interpolate:  True;  grid spacing: 1500
+Custom loss:  True
