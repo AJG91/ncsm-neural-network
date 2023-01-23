@@ -58,6 +58,8 @@ def compute_spline(
 
 def get_training_data(
     param: str, 
+    val_sep: str,
+    val_list: list,
     df: DataFrameStr, 
     step: int, 
     spline: bool
@@ -70,6 +72,10 @@ def get_training_data(
     ----------
     param: str
         Parameter we want to predict.
+    val_sep: str
+        Parameter we want to separate by.
+    val_list: list
+        List of values we want to separate by.
     df: DataFrame
         DataFrame with dataset.
     step: int
@@ -86,16 +92,14 @@ def get_training_data(
     all_Nmax_spline: list[DataFrame]
         DataFrame with splined dataset in a list with increasing Nmax.
     """
-    all_Nmax = separate_by_N(df)
+    all_Nmax = separate_dataset(df, val_sep, val_list)
     all_Nmax_spline = []
     
-    if spline:
-        tot_Nmax = df["Nmax"].unique()
-        
-        for i in range(tot_Nmax.shape[0]):
+    if spline:        
+        for i in range(len(val_list)):
             all_Nmax[i] = remove_unneeded_data(all_Nmax[i], 10)
             new_x, new_y, new_N = compute_spline(sorted(all_Nmax[i]["hw"].values), 
-                                                 all_Nmax[i][param].values, tot_Nmax[i], step)
+                                                 all_Nmax[i][param].values, val_list[i], step)
             
             df = pd.DataFrame(columns=["hw", "Nmax", param])
             df["hw"], df["Nmax"], df[param] = new_x, new_N, new_y
@@ -111,7 +115,8 @@ def get_training_data(
     return all_Nmax, all_Nmax_spline
 
 def construct_training_sets(
-    Nmax: DataFrameStr, 
+    df: DataFrameStr, 
+    val_sep: str,
     dims: int,
     pred_param: str
 ) -> tuple[ArrayLike, ArrayLike]:
@@ -123,6 +128,8 @@ def construct_training_sets(
     ----------
     Nmax: DataFrame
         DataFrame with original data.
+    val_sep: str
+        Parameter we want to separate by.
     dims: int
         Dimension of neural network input.
     pred_param: str
@@ -135,21 +142,19 @@ def construct_training_sets(
     y: array
         y values of dataset separated by Nmax.
     """
-    df6 = [Nmax[2]]
-    df8 = [Nmax[2], Nmax[3]]
-    df10 = [Nmax[2], Nmax[3], Nmax[4]]
-    df12 = [Nmax[2], Nmax[3], Nmax[4], Nmax[5]]
+    new_df = []
 
-    Nmax06  = pd.concat(df6)
-    Nmax08  = pd.concat(df8)
-    Nmax10  = pd.concat(df10)
-    Nmax12  = pd.concat(df12)
+    for i in range(len(df)):
+        new_df.append(df[i])
+
+        if i > 0:
+            new_df[i] = pd.concat([last, new_df[i]])
+            new_df[i] = new_df[i].sort_values(by=val_sep, ascending=True)
+
+        last = new_df[i]
     
-    Nmax_df = [Nmax06, Nmax08, Nmax10, Nmax12]
-    
-    X = np.zeros((len(Nmax_df),), dtype=object)
-    y = np.zeros((len(Nmax_df),), dtype=object)
-    
+    X = np.zeros((len(new_df),), dtype=object)
+    y = np.zeros((len(new_df),), dtype=object)
     
     if dims == 3:
         cols = ["hw", "Nmax", "Ediff"]
@@ -157,9 +162,9 @@ def construct_training_sets(
         cols = ["hw", "Nmax"]
     
     for i in range(X.shape[0]):
-#         Nmax_df[i] = Nmax_df[i][~(Nmax_df[i]['hw'] < 20)].reset_index(drop=True)
-        X[i] = Nmax_df[i][cols]
-        y[i] = Nmax_df[i].loc[:, pred_param].values
+#         new_df[i] = new_df[i][~(new_df[i]['hw'] < 20)].reset_index(drop=True)
+        X[i] = new_df[i][cols]
+        y[i] = new_df[i].loc[:, pred_param].values
     
     return X, y
 
@@ -186,8 +191,10 @@ def remove_unneeded_data(
     df = (df.reset_index()).drop(['index'], axis=1)
     return df
 
-def separate_by_N(
-    df: DataFrameStr
+def separate_dataset(
+    df: DataFrameStr,
+    val_sep: str,
+    val_list: list
 ) -> list[DataFrameStr]:
     """
     Function used to correctly separate original DataFrame by increasing Nmax.
@@ -196,56 +203,22 @@ def separate_by_N(
     ----------
     df: DataFrame
         Original DataFrame with imported dataset.
+    val_sep: str
+        Parameter we want to separate by.
+    val_list: list
+        List of values we want to separate by.
 
     Returns
     -------
     df: list[DataFrame]
         A list of DataFrames with increasing Nmax.
     """
-    Nmax02 = pd.DataFrame()
-    Nmax04 = pd.DataFrame()
-    Nmax06 = pd.DataFrame()
-    Nmax08 = pd.DataFrame()
-    Nmax10 = pd.DataFrame()
-    Nmax12 = pd.DataFrame()
-
-    Nmax = []
-
-    for m in range(len(df["Nmax"].unique())):
-        Nmax.append(2 * m + 2)
-
-    for i in range(len(df["Nmax"])):
-        if int(df.iloc[i][1]) == Nmax[0]:
-            Nmax02 = df.loc[0:i]
-
-        elif int(df.iloc[i][1]) == Nmax[1]:
-            Nmax04 = df.loc[len(Nmax02):i]
-
-        elif int(df.iloc[i][1]) == Nmax[2]:
-            Nmax06 = df.loc[len(Nmax02) + \
-                            len(Nmax04):i]
-
-        elif int(df.iloc[i][1]) == Nmax[3]:
-            Nmax08 = df.loc[len(Nmax02) + \
-                            len(Nmax04) + \
-                            len(Nmax06):i]
-
-        elif int(df.iloc[i][1]) == Nmax[4]:
-            Nmax10 = df.loc[len(Nmax02) + \
-                            len(Nmax04) + \
-                            len(Nmax06) + \
-                            len(Nmax08):i]
-
-        elif int(df.iloc[i][1]) == Nmax[5]:
-            Nmax12 = df.loc[len(Nmax02) + \
-                            len(Nmax04) + \
-                            len(Nmax06) + \
-                            len(Nmax08) + \
-                            len(Nmax10):i]
-        else:
-            raise ValueError("Wrong input!")
+    separated_list = []
     
-    return [Nmax02, Nmax04, Nmax06, Nmax08, Nmax10, Nmax12]
+    for val_i in val_list:
+        separated_list.append(df.loc[df[val_sep] == val_i])
+    
+    return separated_list
 
 def df_col_difference(
     df1: DataFrameStr, 
@@ -266,7 +239,7 @@ def df_col_difference(
     df: DataFrame
         New DataFrame with column containing energy differences.
     """
-    df_new = df2.iloc[:, 2].values - df1.iloc[:, 2]
+    df_new = df1.iloc[:, 2] - min(df2.iloc[:, 2].values)
     df_new.name = "Ediff"
     
     return pd.concat([df1, df_new.to_frame()], axis=1)
