@@ -1,10 +1,13 @@
 nucleon:  He4_lam0200_Ebind
 pred_param:  Ebind
 total_NN:  50
-max_train:  50
+max_train:  20
 hw_pred:  20
+input dim.:  2
 patience:  15
 Nmax_pred:  50
 L2 reg:  False
+Separate by:  Nmax
+Values used:  [6, 8, 10, 12]
 Interpolate:  True;  grid spacing: 1500
 Custom loss:  True
