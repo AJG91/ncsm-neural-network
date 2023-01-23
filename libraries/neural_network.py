@@ -146,7 +146,7 @@ class NeuralNetwork():
         X: ArrayLike, 
         y: ArrayLike, 
         network, 
-        num_NN: int, 
+        num_train: int, 
         best_model: str, 
         mean: float, 
         std_dev: float, 
@@ -178,9 +178,9 @@ class NeuralNetwork():
         network = self.load_network_weights(network, best_model, initial_train)
 
         network = self.fit_NN(network, X_data, y_data, callbacks, epoch, 
-                              batch_train, num_NN, verbose, model, best_model)
+                              batch_train, num_train, verbose, model, best_model)
         y_pred = network.predict(X_test, batch_size=batch_test)
-        score = network.evaluate(X_test, y_test, batch_size=batch_test, verbose=0)
+        score = network.evaluate(X_test, y_test, batch_size=batch_test, verbose=verbose)
 
 #         results = pd.DataFrame(scaler.inverse_transform(X_test), \
 #                                index=range(y_test.shape[0]), columns=self.cols)
@@ -281,7 +281,7 @@ class NeuralNetwork():
         callbacks: list,
         epoch: int,  
         batch_train: int, 
-        max_NN: int,  
+        num_train: int,  
         verbose: int,
         model: str, 
         best_model: str
@@ -294,7 +294,7 @@ class NeuralNetwork():
         Returns
         -------
         """
-        for m in range(max_NN):
+        for m in range(num_train):
             history = network.fit(X[0], y[0], epochs=epoch,\
                                   batch_size=batch_train, verbose=verbose,\
                                   callbacks=callbacks, validation_data=(X[1], y[1]))
@@ -310,8 +310,7 @@ class NeuralNetwork():
     def predict(
         self, 
         hw: int, 
-        Nmax: int, 
-        E_diff: float, 
+        Nmax: int,
         model
     ) -> ArrayLike:
         """
@@ -323,7 +322,7 @@ class NeuralNetwork():
         -------
         """
         if self.total_inputs == 3:
-            pred_input = [hw, Nmax, E_diff]
+            pred_input = [hw, Nmax, 0]
             cols = ["hw", "Nmax", "Ediff"]
         else:
             pred_input = [hw, Nmax]
