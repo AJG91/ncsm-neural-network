@@ -16,15 +16,6 @@ conda env create -f environment.yml
 * Install the `libraries` package in the repo root directory using `pip install -e .`
   (you only need the `-e` option if you intend to edit the source code in `libraries/`).
 
-## Example
-
-The main class for the neural network is `NeuralNetwork`, which implements the neural network.
-The code snippet below shows how it should be used:
-```python
-from libraries import NeuralNetwork
-
-# Setup
-```
 
 [Bogner]: https://www.sciencedirect.com/science/article/abs/pii/S0375947407008147?via%3Dihub
 [Negoita]: https://arxiv.org/abs/1803.03215
